@@ -4,7 +4,7 @@ resource "aws_security_group" "lb_web" {
   vpc_id      = data.aws_vpc.webapp.id
 }
 
-resource "aws_security_group_rule" "http_8080_in" {
+resource "aws_security_group_rule" "http_extra_in" {
   description       = "Allows inbound HTTP"
   type              = "ingress"
   from_port         = var.redirect_to_port
