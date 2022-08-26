@@ -1,0 +1,50 @@
+write_files:
+- path: /etc/systemd/system/webapp.service
+  permissions: "0600"
+  content: |
+    [Unit]
+    Description=learn-go-webapp-demo
+    ConditionPathExists=/home/${user_name}/go/src/github.com/hashicorp/learn-go-webapp-demo
+    After=network.target
+    [Service]
+    Type=simple
+    User=${user_name}
+    Group=${user_name}
+    Environment=GOROOT=/usr/lib/golang
+    Environment=GOPATH=/home/${user_name}/go
+    WorkingDirectory=/home/${user_name}/go/src/github.com/hashicorp/learn-go-webapp-demo
+    ExecStart=/usr/lib/golang/bin/go run ./webapp.go
+    Restart=on-failure
+    RestartSec=10
+    StandardOutput=syslog
+    StandardError=syslog
+    SyslogIdentifier=webapp
+    [Install]
+    WantedBy=multi-user.target
+
+- path: /tmp/init-script.sh
+  permissions: "0555"
+  content: |
+    #!/bin/bash
+    # Update certificates
+    update-ca-trust force-enable
+    
+    # Create user
+    useradd -m -s /bin/bash ${user_name}
+    
+    # Create GOPATH for user & download the webapp from github
+    sudo -H -i -u ${user_name} -- env bash -x << EOF
+    cd /home/${user_name}
+    mkdir ./go
+    git clone https://github.com/hashicorp/learn-go-webapp-demo.git go/src/github.com/hashicorp/learn-go-webapp-demo
+    EOF
+
+    # Enadle and run webapp service
+    sudo systemctl daemon-reload
+    sudo systemctl enable webapp.service
+    sudo systemctl start webapp.service
+
+runcmd:
+  - |
+    set -ex
+    bash -x /tmp/init-script.sh
