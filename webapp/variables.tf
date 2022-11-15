@@ -23,7 +23,7 @@ variable "ami" {
   description = "AMI id"
 }
 
-variable "instance_name" {
+variable "instance_name_prefix" {
   type        = string
   description = "Name of EC2 instane"
 }

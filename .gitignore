@@ -8,5 +8,6 @@ local-*
 **/.terraform/*
 wizlabs/
 .DS_Store
+aws.tf
 terraform.tfvars
 .terraform.lock.hcl

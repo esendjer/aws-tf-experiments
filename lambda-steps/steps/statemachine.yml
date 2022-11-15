@@ -1,0 +1,51 @@
+---
+Comment: Two-step ValDevOps project provisioning StateMachine
+StartAt: RunFirstLambda
+States:
+  RunFirstLambda:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke
+    OutputPath: "$.Payload"
+    Parameters:
+      Payload.$: "$"
+      FunctionName: "${first_lambda_arn}"
+    Retry:
+      - ErrorEquals:
+        - Lambda.ServiceException
+        - Lambda.AWSLambdaException
+        - Lambda.SdkClientException
+    Next: RunSecondLambda
+    Catch:
+      - ErrorEquals: 
+        - States.ALL
+        Next: ErrorHandlerRun
+  RunSecondLambda:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke
+    OutputPath: "$.Payload"
+    Parameters:
+      Payload.$: "$"
+      FunctionName: "${second_lambda_arn}"
+    Retry:
+      - ErrorEquals:
+        - Lambda.ServiceException
+        - Lambda.AWSLambdaException
+        - Lambda.SdkClientException
+    End: true
+  ErrorHandlerRun:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke
+    OutputPath: "$.Payload"
+    Parameters:
+      Payload:
+        ExecutionName.$: "$$.Execution.Name"
+        ExecutionStartTime.$: "$$.Execution.StartTime"
+        Input.$: "$$.Execution.Input"
+        Payload.$: "$"
+      FunctionName: "${error_handler_lambda_arn}"
+    Retry:
+      - ErrorEquals:
+        - Lambda.ServiceException
+        - Lambda.AWSLambdaException
+        - Lambda.SdkClientException
+    End: true
