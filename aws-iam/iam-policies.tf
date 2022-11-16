@@ -23,11 +23,11 @@ resource "aws_iam_policy" "assume_policy_full_access_admin_group" {
 # Policies for AssumeFullAccessAdminRole
 data "aws_iam_policy_document" "trusted_entities_full_access_admin_role" {
   statement {
-    sid        = "tfManaged"
-    actions    = ["sts:AssumeRole"]
+    sid     = "tfManaged"
+    actions = ["sts:AssumeRole"]
     principals {
-        type        = "AWS"
-        identifiers = [data.aws_caller_identity.current.account_id]
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.current.account_id]
     }
 
     condition {
